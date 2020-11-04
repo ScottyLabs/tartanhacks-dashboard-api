@@ -9,6 +9,7 @@ mongoose.connect('mongodb+srv://thd-db-admin:$f8vde23Qjxn2tD9eSjkPQ1$9!Uur2@thd-
 }
 );
 
+const participantsRouter = require('./api/routers/participants');
 
 
 app.use(morgan('dev'));
@@ -25,6 +26,7 @@ app.use((req, res, next) =>{
     next();
 });
 
+app.use('/participants', participantsRouter);
 
 
 module.exports = app;
