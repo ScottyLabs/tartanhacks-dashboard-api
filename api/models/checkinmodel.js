@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const checkinSchema = mongoose.Schema({
 
-    _id: mongooose.Scheme.Types.ObjectId,
+    _id: mongoose.Schema.Types.ObjectId,
     name: {type: String, required: true},
     desc: {type: String, required: true},
     date: {type: String, required: true},
@@ -14,4 +14,4 @@ const checkinSchema = mongoose.Schema({
     active_status: {type: Number, required: true}
 });
 
-module.exports = mongoose.model('Checkin', checkinScheme);
+module.exports = mongoose.model('Checkin', checkinSchema);

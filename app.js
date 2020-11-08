@@ -10,7 +10,7 @@ mongoose.connect('mongodb+srv://thd-db-admin:$f8vde23Qjxn2tD9eSjkPQ1$9!Uur2@thd-
 );
 
 const participantsRouter = require('./api/routers/participants');
-
+const checkinRouter = require('./api/routers/check-in');
 
 app.use(morgan('dev'));
 app.use(bodyPasser.urlencoded({extended: false}));
@@ -27,7 +27,7 @@ app.use((req, res, next) =>{
 });
 
 app.use('/participants', participantsRouter);
-
+app.use('/check-in', checkinRouter);
 
 module.exports = app;
 

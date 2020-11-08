@@ -9,18 +9,20 @@ const Checkin = require('../models/checkinmodel');
 router.post('/new', (req, res, next)=>{
 
     const name = req.body.name;
-    const desc = req.body.description;
-    const date = req.body.date
-    const lat = req.body.lat
-    const long = req.body.lng
-    const units = req.body.available_units
-    const limit = req.body.checkin_limit
-    const access = req.body.access_code
-    const status = req.body.active_status
+    const desc = req.body.desc;
+    const date = req.body.date;
+    const lat = req.body.lat;
+    const long = req.body.long;
+    const units = req.body.units;
+    const limit = req.body.checkin_limit;
+    const access = req.body.access_code;
+    const status = req.body.active_status;
 
+
+    console.log(name);
     Checkin.find({name: name})
         .then(results =>{
-            if(result.length != 0){
+            if(results.length != 0){
 
                 res.status(400).json(
                     {
@@ -29,7 +31,7 @@ router.post('/new', (req, res, next)=>{
                 );
             }else{
                 const checkin = new Checkin({
-                    _id: new mongood.Types.ObjectID(), 
+                    _id: new mongoose.Types.ObjectId(), 
                     name: name,
                     desc: desc,
                     date: date,
@@ -40,7 +42,7 @@ router.post('/new', (req, res, next)=>{
                     access_code: access, 
                     active_status: status
                 });
-
+                console.log(checkin);
                 checkin.save()
                     .then(result =>{
                         console.log(result);
@@ -51,7 +53,7 @@ router.post('/new', (req, res, next)=>{
                     })
                     .catch(err=>{
                         res.status(500).json({
-                            message: "Unknown error occurred while creating this checkin item.",
+                            message: "Unknown error 1 occurred while creating this checkin item.",
                             error: err
                         });
                     });
@@ -59,7 +61,7 @@ router.post('/new', (req, res, next)=>{
         })
         .catch(err=>{
             res.status(500).json({
-                message: "Unknown error occurred while creating this checkin item.",
+                message: "Unknown error 2 occurred while creating this checkin item.",
                 error: err
             });
         });
@@ -92,3 +94,5 @@ router.get('/', (req, res, next)=>{
 
 // Get checkin history for a participant
 // Also incomplete, same issue as above
+
+module.exports = router;
