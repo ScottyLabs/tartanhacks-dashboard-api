@@ -33,6 +33,11 @@ router.post('/login', (req, res, next)=>{
                         const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
                         let p = results[0];
                         p.last_login_time = currentTime;
+                        response.setEncoding('utf8');
+
+                        response.on('data', function(chunk) {
+                            p.is_admin = JSON.parse(chunk).user.admin;
+                        });
                         p.save()
                             .then(result =>{
                                 console.log(result);

@@ -15,6 +15,7 @@ router.post('/new', (req, res, next)=>{
     const dpUrl = req.body.dp_url;
     const githubProfileUrl = req.body.github_profile_url;
     const resumeUrl = req.body.resume_url;
+    const isAdmin = req.body.is_admin;
 
 
     Participants.find({email: email})
@@ -41,7 +42,8 @@ router.post('/new', (req, res, next)=>{
                     is_on_mobile: false,
                     github_profile_url: githubProfileUrl,
                     resume_url: resumeUrl,
-                    account_creation_time: currentTime
+                    account_creation_time: currentTime,
+                    is_admin: isAdmin
                 });
 
                 participant.save()
@@ -145,6 +147,10 @@ router.post('/edit', (req, res, next)=>{
 
                     if(req.body.bio !== undefined){
                         participant.bio = req.body.bio;
+                    }
+
+                    if(req.body.is_admin !== undefined){
+                        participant.is_admin = req.body.is_admin;
                     }
 
                     participant.save()

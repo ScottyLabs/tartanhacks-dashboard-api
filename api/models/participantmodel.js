@@ -15,7 +15,9 @@ const participantsSchema = mongoose.Schema({
     last_login_time: {type: String, required: false},
     resume_url: {type:String, required: false},
     bio: {type:String, required:false},
-    account_creation_time: {type: String, required: true}
+    account_creation_time: {type: String, required: true},
+    is_admin: {type: Boolean, default: false, required: true},
+
 });
 
 module.exports = mongoose.model('Participants', participantsSchema);
