@@ -86,7 +86,7 @@ router.get('/', (req, res, next)=>{
         .catch(err=> {
 
             res.status(500).json({
-                message: "We encountered an error while creating participant with e-mail " + email,
+                message: "We encountered an error while finding participants that matched your query.",
                 error: err
             });
     });

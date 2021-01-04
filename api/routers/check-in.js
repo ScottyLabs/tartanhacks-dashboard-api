@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const Checkin = require('../models/checkinmodel');
 const CheckinHistory = require('../models/checkinhistorymodel');
+const Participants = require('../models/participantmodel');
 
 
 //Create check-in item endpoint - /checkin/new
@@ -27,7 +28,7 @@ router.post('/new', (req, res, next)=>{
 
                 res.status(400).json(
                     {
-                        message: "A checkin with this name already exists"
+                        message: "A check-in item with this name already exists"
                     }
                 );
             }else{
@@ -49,12 +50,12 @@ router.post('/new', (req, res, next)=>{
                         console.log(result);
                         res.status(200).json({
                             message: "Checkin item successfully created!",
-                            checkinInfo:checkin // Not sure if this is necessary? Ask Anuda
+                            checkinInfo:checkin
                         });
                     })
                     .catch(err=>{
                         res.status(500).json({
-                            message: "Unknown error 1 occurred while creating this checkin item.",
+                            message: "Unknown error occurred while creating this checkin item.",
                             error: err
                         });
                     });
@@ -62,7 +63,7 @@ router.post('/new', (req, res, next)=>{
         })
         .catch(err=>{
             res.status(500).json({
-                message: "Unknown error 2 occurred while creating this checkin item.",
+                message: "Unknown error occurred while creating this checkin item.",
                 error: err
             });
         });
@@ -210,26 +211,45 @@ router.post('/user', (req, res, next)=>{
                             .then(result => {
                                 const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
 
-                                const checkinHistoryItem = new CheckinHistory({
-                                    _id: new mongoose.Types.ObjectId(),
-                                    user_id: user_id,
-                                    checkin_item_id: checkin_item_id,
-                                    timestamp: currentTime
-                                });
+                                Participants.find({_id: user_id})
+                                    .then(participants => {
 
-                                checkinHistoryItem.save()
-                                    .then(result => {
-                                        console.log(result);
-                                        res.status(200).json({
-                                            message: "Successfully Checked In!",
-                                        });
+                                        if(participants.length === 0){
+                                            res.status(404).json({
+                                                message: "We couldn't find records of a user with id:"+user_id
+                                            });
+                                        }else {
+                                            const checkinHistoryItem = new CheckinHistory({
+                                                _id: new mongoose.Types.ObjectId(),
+                                                timestamp: currentTime,
+                                                checkin_item: checkinItem._id,
+                                                user:participants[0]._id
+                                            });
+
+                                            checkinHistoryItem.save()
+                                                .then(result => {
+                                                    console.log(result);
+                                                    res.status(200).json({
+                                                        message: "Successfully Checked In!",
+                                                    });
+                                                })
+                                                .catch(err => {
+                                                    res.status(500).json({
+                                                        message: "Unknown error occurred while checking this user in",
+                                                        error: err
+                                                    });
+                                                });
+                                        }
+
                                     })
-                                    .catch(err => {
+                                    .catch(err=>{
                                         res.status(500).json({
-                                            message: "Unknown error occurred while checking this user in",
+                                            message: "We encountered an error while checking user with id:"+user_id+" to check in item with id:"+checkin_item_id,
                                             error: err
                                         });
                                     });
+
+
                             })
                             .catch(err => {
                                 res.status(500).json({
@@ -255,6 +275,54 @@ router.post('/user', (req, res, next)=>{
 });
 
 // Get checkin history for a participant
-// Also incomplete, same issue as above
+router.post('/history', (req, res, next)=>{
+    const user_id = req.body.user_id;
+
+    if(user_id === undefined){
+        res.status(400).json({
+            message: "Please specify the id of the user you wish to check in"
+        });
+    }else{
+        Participants.find({_id:user_id})
+            .then(results=>{
+                if(results.length === 0){
+                    res.status(404).json({
+                        message: "We couldn't find any participants with the provided ID"
+                    });
+                }else{
+                    const participant = results[0];
+
+                    CheckinHistory.find({user:user_id})
+                        .populate('checkin_item')
+                        .then(results2=>{
+
+
+                            res.status(200).json({
+                                user: participant,
+                                checkin_history:results2
+                            });
+
+
+                        })
+                        .catch(err=> {
+
+                            res.status(500).json({
+                                message: "BWe encountered an error while getting check-in history for the participant with ID " + user_id,
+                                error: err
+                            });
+                        });
+
+                }
+            })
+            .catch(err=> {
+
+                res.status(500).json({
+                    message: "We encountered an error while getting check-in history for the participant with ID " + user_id,
+                    error: err
+                });
+            });
+    }
+
+});
 
 module.exports = router;

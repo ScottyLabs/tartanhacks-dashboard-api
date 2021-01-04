@@ -10,7 +10,6 @@ router.post('/login', (req, res, next)=>{
     const email = req.body.email;
     const password = req.body.password;
 
-    // frontend sends login credentials, use reg system api to check if passed token
     Participants.find({email: email})
         .then(results =>{
             if(results.length !== 0){
