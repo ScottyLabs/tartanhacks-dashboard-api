@@ -13,6 +13,7 @@ const participantsRouter = require('./api/routers/participants');
 const authRouter = require('./api/routers/auth');
 const projectsRouter = require('./api/routers/projects');
 const checkinRouter = require('./api/routers/check-in');
+const eventsRouter = require('./api/routers/events');
 
 
 app.use(morgan('dev'));
@@ -33,6 +34,7 @@ app.use('/participants', participantsRouter);
 app.use('/auth', authRouter);
 app.use('/projects', projectsRouter);
 app.use('/checkin', checkinRouter);
+app.use('/events', eventsRouter);
 
 
 
