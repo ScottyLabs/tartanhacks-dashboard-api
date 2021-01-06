@@ -4,8 +4,56 @@ const mongoose = require('mongoose');
 
 const Events = require('../models/eventsmodel');
 
+/**
+ * @swagger
+ * tags:
+ *  name: Events Module
+ *  description: Endpoints to manage event data.
+ */
 
 //Create Events endpoint - /events/new
+
+/**
+ * @swagger
+ * /events/new:
+ *   post:
+ *     summary: Create a new event
+ *     tags: [Events Module]
+ *     description: Adds event to database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               timestamp:
+ *                 type: string
+ *               zoom_access_enabled:
+ *                 type: boolean
+ *               gcal_event_url:
+ *                 type: string
+ *               zoom_link:
+ *                 type: string
+ *               is_in_person:
+ *                 type: boolean
+ *               access_code:
+ *                 type: number
+ *               zoom_id:
+ *                 type: string
+ *               zoom_password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/new', (req, res, next)=>{
 
     const name = req.body.name;
@@ -56,7 +104,55 @@ router.post('/new', (req, res, next)=>{
 });
 
 //Get events endpoint - /events
-router.get('/', (req, res, next)=>{
+
+/**
+ * @swagger
+ * /events/get:
+ *   post:
+ *     summary: Retrieve a list of Events
+ *     tags: [Events Module]
+ *     description: Searches events database and retrieves list of events. Specify optional search parameters in request body
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               timestamp:
+ *                 type: string
+ *               zoom_access_enabled:
+ *                 type: boolean
+ *               gcal_event_url:
+ *                 type: string
+ *               zoom_link:
+ *                 type: string
+ *               is_in_person:
+ *                 type: boolean
+ *               access_code:
+ *                 type: number
+ *               zoom_id:
+ *                 type: string
+ *               zoom_password:
+ *                 type: string
+ *               created_at:
+ *                 type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: Events not found.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
+router.post('/get', (req, res, next)=>{
     Events.find(req.body)
         .then(results=>{
             if(results.length != 0){
@@ -77,6 +173,54 @@ router.get('/', (req, res, next)=>{
 });
 
 //Edit participants endpoint - /events/edit
+
+/**
+ * @swagger
+ * /events/edit:
+ *   post:
+ *     summary: Edit existing events
+ *     tags: [Events Module]
+ *     description: Include Event ID in request body along with the fields with updated data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               timestamp:
+ *                 type: string
+ *               zoom_access_enabled:
+ *                 type: boolean
+ *               gcal_event_url:
+ *                 type: string
+ *               zoom_link:
+ *                 type: string
+ *               is_in_person:
+ *                 type: boolean
+ *               access_code:
+ *                 type: number
+ *               zoom_id:
+ *                 type: string
+ *               zoom_password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       400:
+ *          description: Bad Request.
+ *       404:
+ *          description: Event not found.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/edit', (req, res, next)=>{
 
     const id = req.body._id;

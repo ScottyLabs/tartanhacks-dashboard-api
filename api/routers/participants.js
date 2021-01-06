@@ -4,8 +4,60 @@ const mongoose = require('mongoose');
 
 const Participants = require('../models/participantmodel');
 
+/**
+ * @swagger
+ * tags:
+ *  name: Participants Module
+ *  description: Endpoints to manage THD user data.
+ */
 
 //Create participants endpoint - /participant/new
+
+/**
+ * @swagger
+ * /participants/new:
+ *   post:
+ *     summary: Add a new participant
+ *     tags: [Participants Module]
+ *     description: Adds participant to database. Assumes that participant already exists in the registration system.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The user's name.
+ *               email:
+ *                 type: string
+ *                 description: The user's email.
+ *               reg_system_id:
+ *                 type: string
+ *                 description: The user's ID on the registration system.
+ *               team_id:
+ *                 type: string
+ *                 description: ID from the teams table.
+ *               dp_url:
+ *                 type: string
+ *                 description: URL to user's display picture.
+ *               github_profile_url:
+ *                 type: string
+ *                 description: URL to user's github profile.
+ *               resume_url:
+ *                 type: string
+ *               is_admin:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       400:
+ *          description: A user with this email address already exists.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/new', (req, res, next)=>{
 
     const name = req.body.name;
@@ -71,8 +123,72 @@ router.post('/new', (req, res, next)=>{
 
 });
 
-//Get participants endpoint - /participant
-router.get('/', (req, res, next)=>{
+//Get participants endpoint - /participant/get
+
+/**
+ * @swagger
+ * /participants/get:
+ *   post:
+ *     summary: Retrieve a list of Participants
+ *     tags: [Participants Module]
+ *     description: Searches participant database and retrieves list of participants. Specify optional search parameters in request body
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *                 description: The user's ID.
+ *               name:
+ *                 type: string
+ *                 description: The user's name.
+ *               email:
+ *                 type: string
+ *                 description: The user's email.
+ *               reg_system_id:
+ *                 type: string
+ *                 description: The user's ID on the registration system.
+ *               team_id:
+ *                 type: string
+ *                 description: ID from the teams table.
+ *               dp_url:
+ *                 type: string
+ *                 description: URL to user's display picture.
+ *               is_active:
+ *                 type: boolean
+ *                 description: True if the participant account is active.
+ *               is_on_mobile:
+ *                 type: boolean
+ *                 description: True if the participant account is actively using the mobile app.
+ *               github_profile_url:
+ *                 type: string
+ *                 description: URL to user's github profile.
+ *               zoom_auth:
+ *                 type: string
+ *                 description: Auth info for user's zoom account.
+ *               last_login_time:
+ *                 type: string
+ *               resume_url:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               account_creation_time:
+ *                 type: string
+ *               is_admin:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: Participants not found.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
+router.post('/get', (req, res, next)=>{
     Participants.find(req.body)
         .then(results=>{
             if(results.length != 0){
@@ -93,6 +209,67 @@ router.get('/', (req, res, next)=>{
 });
 
 //Edit participants endpoint - /participant/edit
+
+/**
+ * @swagger
+ * /participants/edit:
+ *   post:
+ *     summary: Edit data associated with existing participant
+ *     tags: [Participants Module]
+ *     description: Include Participant's ID in request body along with the fields with updated data. EMail cannot be edited.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *                 description: participant's ID.
+ *               name:
+ *                 type: string
+ *                 description: The user's name.
+ *               reg_system_id:
+ *                 type: string
+ *                 description: The user's ID on the registration system.
+ *               team_id:
+ *                 type: string
+ *                 description: ID from the teams table.
+ *               dp_url:
+ *                 type: string
+ *                 description: URL to user's display picture.
+ *               is_active:
+ *                 type: boolean
+ *                 description: True if the participant account is active.
+ *               is_on_mobile:
+ *                 type: boolean
+ *                 description: True if the participant account is actively using the mobile app.
+ *               github_profile_url:
+ *                 type: string
+ *                 description: URL to user's github profile.
+ *               zoom_auth:
+ *                 type: string
+ *                 description: Auth info for user's zoom account.
+ *               last_login_time:
+ *                 type: string
+ *               resume_url:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               account_creation_time:
+ *                 type: string
+ *               is_admin:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: Participant not found.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/edit', (req, res, next)=>{
 
     const id = req.body._id;

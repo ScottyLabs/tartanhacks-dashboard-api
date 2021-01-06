@@ -16,6 +16,8 @@ const checkinRouter = require('./api/routers/check-in');
 const eventsRouter = require('./api/routers/events');
 
 
+
+
 app.use(morgan('dev'));
 app.use(bodyPasser.urlencoded({extended: false}));
 app.use(bodyPasser.json());
@@ -29,6 +31,29 @@ app.use((req, res, next) =>{
     }
     next();
 });
+
+const swaggerJSDoc = require('swagger-jsdoc');
+
+const swaggerDefinition = {
+    openapi: '3.0.0',
+    info: {
+        title: 'TartanHacks Dashboard API',
+        version: '0.0.1',
+    },
+};
+
+const options = {
+    swaggerDefinition,
+    // Paths to files containing OpenAPI definitions
+    apis: ['./api/routers/*.js'],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+const swaggerUi = require('swagger-ui-express');
+
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/participants', participantsRouter);
 app.use('/auth', authRouter);

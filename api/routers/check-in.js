@@ -7,7 +7,57 @@ const CheckinHistory = require('../models/checkinhistorymodel');
 const Participants = require('../models/participantmodel');
 
 
+/**
+ * @swagger
+ * tags:
+ *  name: Check In Module
+ *  description: Endpoints to manage participant check-in data.
+ */
+
+
 //Create check-in item endpoint - /checkin/new
+
+/**
+ * @swagger
+ * /checkin/new:
+ *   post:
+ *     summary: Create a new Check In Item
+ *     tags: [Check In Module]
+ *     description: Adds a new check-in item to database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               desc:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               lat:
+ *                 type: number
+ *               long:
+ *                 type: number
+ *               units:
+ *                 type: number
+ *               checkin_limit:
+ *                 type: number
+ *               access_code:
+ *                 type: number
+ *               active_status:
+ *                 type: number
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: check in items not found.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/new', (req, res, next)=>{
 
     const name = req.body.name;
@@ -69,8 +119,50 @@ router.post('/new', (req, res, next)=>{
         });
 });
 
-// Get checkin items endpoint - /checkin
-router.get('/', (req, res, next)=>{
+// Get checkin items endpoint - /checkin/get
+
+/**
+ * @swagger
+ * /checkin/get:
+ *   post:
+ *     summary: Retrieve a list of Check-In items
+ *     tags: [Check In Module]
+ *     description: Searches check in item database and retrieves list of check in items. Specify optional search parameters in request body
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               desc:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               lat:
+ *                 type: number
+ *               long:
+ *                 type: number
+ *               units:
+ *                 type: number
+ *               checkin_limit:
+ *                 type: number
+ *               access_code:
+ *                 type: number
+ *               active_status:
+ *                 type: number
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
+router.post('/get', (req, res, next)=>{
     Checkin.find(req.body)
         .then(results=>{
             if(results.length != 0){
@@ -90,6 +182,52 @@ router.get('/', (req, res, next)=>{
 });
 
 //Edit check items endpoint - /checkin/edit
+
+/**
+ * @swagger
+ * /checkin/edit:
+ *   post:
+ *     summary: Edit existing Check In Items
+ *     tags: [Check In Module]
+ *     description: Include Check In Item ID in request body along with the fields with updated data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               desc:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               lat:
+ *                 type: number
+ *               long:
+ *                 type: number
+ *               units:
+ *                 type: number
+ *               checkin_limit:
+ *                 type: number
+ *               access_code:
+ *                 type: number
+ *               active_status:
+ *                 type: number
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: check in item not found.
+ *       400:
+ *          description: Bad Request.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/edit', (req, res, next)=>{
 
     const id = req.body._id;
@@ -177,6 +315,36 @@ router.post('/edit', (req, res, next)=>{
 });
 
 //Check People in for a checkin item - /checkin/user
+
+/**
+ * @swagger
+ * /checkin/user:
+ *   post:
+ *     summary: Check a User In
+ *     tags: [Check In Module]
+ *     description: Checks in a user to a check in item
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               checkin_item_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: check in item or user not found.
+ *       400:
+ *          description: Bad Request.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/user', (req, res, next)=>{
 
     const checkin_item_id = req.body.checkin_item_id;
@@ -275,8 +443,33 @@ router.post('/user', (req, res, next)=>{
 });
 
 // Get checkin history for a participant
-router.post('/history', (req, res, next)=>{
-    const user_id = req.body.user_id;
+
+/**
+ * @swagger
+ * /checkin/history:
+ *   get:
+ *     summary: Get a User's Check in history
+ *     tags: [Check In Module]
+ *     description: Get list of check-in items that user has checked in for.
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: check in item or user not found.
+ *       400:
+ *          description: Bad Request.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
+router.get('/history', (req, res, next)=>{
+    const user_id = req.query.user_id;
 
     if(user_id === undefined){
         res.status(400).json({

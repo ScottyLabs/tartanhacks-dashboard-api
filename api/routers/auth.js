@@ -4,7 +4,44 @@ const mongoose = require('mongoose');
 const https = require('https');
 const Participants = require('../models/participantmodel');
 
+/**
+ * @swagger
+ * tags:
+ *  name: Authentication Module
+ *  description: Endpoints to manage user authentication.
+ */
+
 // Log In - /auth/login - POST
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Authentication Module]
+ *     description: Verifies user credentials using tartanhacks registration system APIs
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: User does not exist.
+ *       401:
+ *          description: Unauthorized.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/login', (req, res, next)=>{
 
     const email = req.body.email;
@@ -76,6 +113,34 @@ router.post('/login', (req, res, next)=>{
 });
 
 // Forgot Password - /auth/forgot - POST - Reg System Endpoint?
+
+/**
+ * @swagger
+ * /auth/forgot:
+ *   post:
+ *     summary: Reset password
+ *     tags: [Authentication Module]
+ *     description: Triggers e-mail to user for password reset
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: User does not exist.
+ *       401:
+ *          description: Unauthorized.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
 router.post('/forgot', (req, res, next)=>{
 
     const email = req.body.email;
