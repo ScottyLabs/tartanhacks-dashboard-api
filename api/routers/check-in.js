@@ -52,8 +52,8 @@ const Participants = require('../models/participantmodel');
  *     responses:
  *       200:
  *          description: Success.
- *       404:
- *          description: check in items not found.
+ *       400:
+ *          Bad request.
  *       500:
  *          description: Internal Server Error.
  */
@@ -158,6 +158,8 @@ router.post('/new', (req, res, next)=>{
  *     responses:
  *       200:
  *          description: Success.
+ *       404:
+ *          description: Not found.
  *       500:
  *          description: Internal Server Error.
  */
@@ -373,20 +375,22 @@ router.post('/user', (req, res, next)=>{
                         });
                     }else {
 
-                        checkinItem.units = checkinItem.units - 1;
+                        Participants.find({_id: user_id})
+                            .then(participants => {
 
-                        checkinItem.save()
-                            .then(result => {
-                                const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
+                                if(participants.length === 0){
+                                    res.status(404).json({
+                                        message: "We couldn't find records of a user with id:"+user_id
+                                    });
+                                }else {
 
-                                Participants.find({_id: user_id})
-                                    .then(participants => {
+                                    checkinItem.units = checkinItem.units - 1;
 
-                                        if(participants.length === 0){
-                                            res.status(404).json({
-                                                message: "We couldn't find records of a user with id:"+user_id
-                                            });
-                                        }else {
+                                    checkinItem.save()
+                                        .then(result => {
+
+                                            const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
+
                                             const checkinHistoryItem = new CheckinHistory({
                                                 _id: new mongoose.Types.ObjectId(),
                                                 timestamp: currentTime,
@@ -407,21 +411,21 @@ router.post('/user', (req, res, next)=>{
                                                         error: err
                                                     });
                                                 });
-                                        }
 
-                                    })
-                                    .catch(err=>{
-                                        res.status(500).json({
-                                            message: "We encountered an error while checking user with id:"+user_id+" to check in item with id:"+checkin_item_id,
-                                            error: err
+                                        })
+                                        .catch(err => {
+                                            res.status(500).json({
+                                                message: "Unknown error occurred while checking this user in",
+                                                error: err
+                                            });
                                         });
-                                    });
 
+                                }
 
                             })
-                            .catch(err => {
+                            .catch(err=>{
                                 res.status(500).json({
-                                    message: "Unknown error occurred while checking this user in",
+                                    message: "We encountered an error while checking user with id:"+user_id+" to check in item with id:"+checkin_item_id,
                                     error: err
                                 });
                             });
@@ -461,7 +465,7 @@ router.post('/user', (req, res, next)=>{
  *       200:
  *          description: Success.
  *       404:
- *          description: check in item or user not found.
+ *          description: check in item not found.
  *       400:
  *          description: Bad Request.
  *       500:

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Prizes = require('../models/prizesmodel');
 
 const projectsSchema = mongoose.Schema({
 
@@ -8,8 +9,9 @@ const projectsSchema = mongoose.Schema({
     github_repo_url: { type: String, required: false},
     slides_url: { type: String, required: false},
     video_url: { type: String, required: false},
-    team_id: {type:Number, required: true},
-    status: {type:Number, required: true}
+    team_id: {type:String, required: true},
+    status: {type:Number, required: true},
+    eligible_prizes:[{type:mongoose.Schema.Types.ObjectId,ref:'Prizes'}]
 });
 
 module.exports = mongoose.model('Projects', projectsSchema);
