@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const https = require('https');
 const Participants = require('../models/participantmodel');
+const Auth = require('../models/authmodel');
 
 /**
  * @swagger
@@ -19,7 +20,7 @@ const Participants = require('../models/participantmodel');
  *   post:
  *     summary: Login user
  *     tags: [Authentication Module]
- *     description: Verifies user credentials using tartanhacks registration system APIs
+ *     description: Verifies user credentials using tartanhacks registration system APIs. Access - Open
  *     requestBody:
  *       required: true
  *       content:
@@ -48,8 +49,8 @@ router.post('/login', (req, res, next)=>{
     const password = req.body.password;
 
     Participants.find({email: email})
-        .then(results =>{
-            if(results.length !== 0){
+        .then(participants =>{
+            if(participants.length !== 0){
                 const data = JSON.stringify({
                     email: email,
                     password: password
@@ -67,21 +68,59 @@ router.post('/login', (req, res, next)=>{
                     console.log(`statusCode: ${response.statusCode}`);
                     if (response.statusCode === 200){
                         const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
-                        let p = results[0];
+                        let p = participants[0];
                         p.last_login_time = currentTime;
                         response.setEncoding('utf8');
 
+                        let access_token = '';
+
                         response.on('data', function(chunk) {
                             p.is_admin = JSON.parse(chunk).user.admin;
+                            p.reg_system_id = JSON.parse(chunk).user.id;
+
+                            access_token = JSON.parse(chunk).token;
                         });
                         p.save()
                             .then(result =>{
-                                console.log(result);
-                                res.status(200).json({
-                                    participant: p
-                                })
-                            })
-                            .catch(err=>{
+
+                                Auth.find({user_id:p._id})
+                                    .then(results =>{
+
+                                        let auth = new Auth();
+
+                                        if(results.length!=0){
+                                            auth = results[0];
+                                        }else{
+                                            auth._id = new mongoose.Types.ObjectId();
+                                        }
+
+                                        auth.user_id = p._id;
+                                        auth.is_admin = p.is_admin;
+                                        auth.access_token = access_token;
+                                        auth.last_login_time = currentTime;
+
+                                        auth.save()
+                                            .then(result =>{
+                                                res.status(200).json({
+                                                    participant: p,
+                                                    access_token:access_token
+                                                })
+                                            })
+                                            .catch(err=>{
+                                                res.status(500).json({
+                                                    message: "We encountered an error while logging you in.",
+                                                    error: err
+                                                });
+                                            });
+
+                                    })
+                                    .catch(err=> {
+                                        res.status(500).json({
+                                            message: "We encountered an error while logging you in.",
+                                            error: err
+                                        });
+                                    });
+                            }).catch(err=>{
                                 res.status(500).json({
                                     message: "We encountered an error while logging you in.",
                                     error: err
@@ -120,7 +159,7 @@ router.post('/login', (req, res, next)=>{
  *   post:
  *     summary: Reset password
  *     tags: [Authentication Module]
- *     description: Triggers e-mail to user for password reset
+ *     description: Triggers e-mail to user for password reset. Access - Open
  *     requestBody:
  *       required: true
  *       content:
@@ -194,3 +233,4 @@ router.post('/forgot', (req, res, next)=>{
 });
 
 module.exports = router;
+
