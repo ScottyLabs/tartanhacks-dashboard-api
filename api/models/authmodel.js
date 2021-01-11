@@ -6,7 +6,8 @@ const authSchema = mongoose.Schema({
     access_token: { type: String, required: true},
     user_id: { type: String, required: true},
     last_login_time: { type: String, required: true},
-    is_admin: { type: Boolean, required: true}
+    is_admin: { type: Boolean, required: true},
+    team_id: { type: String, required: true, default:""}
 });
 
 module.exports = mongoose.model('Auth', authSchema);

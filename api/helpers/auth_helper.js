@@ -1,6 +1,6 @@
 
 
-module.exports = function(adminOnly, selfOnly, userId, results){
+module.exports = function(adminOnly, selfOnly, userId, results, teamOnly, teamId){
 
 
     const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
@@ -21,9 +21,24 @@ module.exports = function(adminOnly, selfOnly, userId, results){
         }else{
             if(!adminOnly){
                 if(!selfOnly){
-                    return  {
-                        result:true
-                    };
+                    if(!teamOnly){
+                        return  {
+                            result:true
+                        };
+                    }else{
+                        if(auth.team_id != teamId && !auth.is_admin){
+                            return  {
+                                result:false,
+                                message: "You are only authorized to access/edit data related to your team."
+                            };
+                        }else{
+                            return  {
+                                result:true
+                            };
+                        }
+                    }
+
+
                 }else{
                     if(auth.user_id != userId && !auth.is_admin){
                         return  {
@@ -60,21 +75,21 @@ module.exports = function(adminOnly, selfOnly, userId, results){
 // let auth_res;
 //
 // Auth.find({access_token:access_token})
-//     .then(results=>{
-//
-//         auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
-//
-//         if(auth_res.result){
-//
-//         }else{
-//             res.status(401).json({
-//                 message: auth_res.message,
-//             });
-//         }
-//     })
-//     .catch(err=> {
-//
-//         res.status(500).json({
-//                message: "We encountered an error while verifying your authentication token",
-//         });
-//     });
+// //     .then(results=>{
+// //
+// //         auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
+// //
+// //         if(auth_res.result){
+// //
+// //         }else{
+// //             res.status(401).json({
+// //                 message: auth_res.message,
+// //             });
+// //         }
+// //     })
+// //     .catch(err=> {
+// //
+// //         res.status(500).json({
+// //                message: "We encountered an error while verifying your authentication token",
+// //         });
+// //     });

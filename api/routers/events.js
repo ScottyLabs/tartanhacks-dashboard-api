@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 
 const Events = require('../models/eventsmodel');
 const Auth = require('../models/authmodel');
+const AuthHelper = require('../helpers/auth_helper');
+
 
 
 /**
@@ -68,12 +70,14 @@ router.post('/new', (req, res, next)=>{
     const adminOnly = true;
     const selfOnly = false;
     const userId = 0;
+    const teamOnly = false;
+    const teamId = 0;
     let auth_res;
 
     Auth.find({access_token:access_token})
         .then(results=>{
 
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
+            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
             if(auth_res.result){
                 const name = req.body.name;
@@ -268,12 +272,14 @@ router.post('/edit', (req, res, next)=>{
     const adminOnly = true;
     const selfOnly = false;
     const userId = 0;
+    const teamOnly = false;
+    const teamId = 0;
     let auth_res;
 
     Auth.find({access_token:access_token})
         .then(results=>{
 
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
+            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
             if(auth_res.result){
                 if(id === undefined){

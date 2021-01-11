@@ -73,12 +73,14 @@ router.post('/new', (req, res, next)=>{
     const adminOnly = true;
     const selfOnly = false;
     const userId = 0;
+    const teamOnly = false;
+    const teamId = 0;
     let auth_res;
 
     Auth.find({access_token:access_token})
         .then(results=>{
 
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
+            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
             if(auth_res.result){
                 const name = req.body.name;
@@ -235,12 +237,14 @@ router.post('/get', (req, res, next)=>{
     const adminOnly = false;
     const selfOnly = false;
     const userId = 0;
+    const teamOnly = false;
+    const teamId = 0;
     let auth_res;
 
     Auth.find({access_token:access_token})
         .then(results=>{
 
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
+            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
             if(auth_res.result){
                 Participants.find(req.body)
@@ -353,12 +357,14 @@ router.post('/edit', (req, res, next)=>{
     const adminOnly = false;
     const selfOnly = true;
     const userId = id;
+    const teamOnly = false;
+    const teamId = 0;
     let auth_res;
 
     Auth.find({access_token:access_token})
-    .then(results=>{
+        .then(results=>{
 
-        auth_res = AuthHelper(adminOnly, selfOnly, userId, results);
+            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
         if(auth_res.result){
             if(id === undefined){

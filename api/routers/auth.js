@@ -98,6 +98,7 @@ router.post('/login', (req, res, next)=>{
                                         auth.is_admin = p.is_admin;
                                         auth.access_token = access_token;
                                         auth.last_login_time = currentTime;
+                                        auth.team_id = p.team_id;
 
                                         auth.save()
                                             .then(result =>{
