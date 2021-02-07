@@ -222,7 +222,7 @@ router.post('/get', (req, res, next)=>{
             auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
         if(auth_res.result){
-            Checkin.find(req.body)
+            Checkin.find(req.body).sort('date')
                 .then(results=>{
                     if(results.length != 0){
                         res.status(200).json(results);

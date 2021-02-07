@@ -190,7 +190,7 @@ router.post('/new', (req, res, next)=>{
  */
 
 router.post('/get', (req, res, next)=>{
-    Events.find(req.body)
+    Events.find(req.body).sort('timestamp')
         .then(results=>{
             if(results.length != 0){
                 res.status(200).json(results);
