@@ -9,9 +9,10 @@ const checkinSchema = mongoose.Schema({
     lat: {type: Number, required: false},
     long: {type: Number, required: false},
     units: {type: Number, required: false},
-    checkin_limit: {type: Number, required: false, default: 1},
+    checkin_limit: {type: Number, required: false, default: 1500},
     access_code: {type: Number, required: true},
-    active_status: {type: Number, required: true}
+    active_status: {type: Number, required: true},
+    self_checkin_enabled: {type: Boolean, required: true, default: false}
 });
 
 module.exports = mongoose.model('Checkin', checkinSchema);

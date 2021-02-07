@@ -57,6 +57,8 @@ const AuthHelper = require('../helpers/auth_helper');
  *                 type: number
  *               active_status:
  *                 type: number
+ *               self_checkin_enabled:
+ *                 type: boolean
  *     responses:
  *       200:
  *          description: Success.
@@ -91,6 +93,7 @@ router.post('/new', (req, res, next)=>{
             const limit = req.body.checkin_limit;
             const access = req.body.access_code;
             const status = req.body.active_status;
+            const self_checkin_enabled = req.body.self_checkin_enabled;
 
 
             console.log(name);
@@ -114,7 +117,8 @@ router.post('/new', (req, res, next)=>{
                             units: units,
                             checkin_limit: limit,
                             access_code: access,
-                            active_status: status
+                            active_status: status,
+                            self_checkin_enabled: self_checkin_enabled
                         });
                         console.log(checkin);
                         checkin.save()
@@ -197,6 +201,8 @@ router.post('/new', (req, res, next)=>{
  *                 type: number
  *               active_status:
  *                 type: number
+ *               self_checkin_enabled:
+ *                 type: boolean
  *     responses:
  *       200:
  *          description: Success.
@@ -296,6 +302,8 @@ router.post('/get', (req, res, next)=>{
  *                 type: number
  *               active_status:
  *                 type: number
+ *               self_checkin_enabled:
+ *                 type: boolean
  *     responses:
  *       200:
  *          description: Success.
@@ -377,6 +385,10 @@ router.post('/edit', (req, res, next)=>{
                                 item.active_status = req.body.active_status;
                             }
 
+                            if(req.body.self_checkin_enabled !== undefined){
+                                item.self_checkin_enabled = req.body.self_checkin_enabled;
+                            }
+
                             item.save()
                                 .then(result =>{
                                     console.log(result);
@@ -429,7 +441,7 @@ router.post('/edit', (req, res, next)=>{
  *   post:
  *     summary: Check a User In
  *     tags: [Check In Module]
- *     description: Checks in a user to a check in item. Access - Admin Users only.
+ *     description: Checks in a user to a check in item. Access - Admin Users can check in any user for any check in item. Participants can only check themselves in for check-in items that have self check-in enabled.
  *     parameters:
  *      - in: header
  *        name: Token
@@ -461,104 +473,139 @@ router.post('/edit', (req, res, next)=>{
 router.post('/user', (req, res, next)=>{
 
     const access_token = req.header('Token');
-    const adminOnly = true;
-    const selfOnly = false;
-    const userId = 0;
+    let adminOnly = false;
+    let selfOnly = false;
+    const userId = req.body.user_id;
     const teamOnly = false;
     const teamId = 0;
     let auth_res;
+    const checkin_item_id = req.body.checkin_item_id;
+
 
     Auth.find({access_token:access_token})
         .then(results=>{
 
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
-
-        if(auth_res.result){
-            const checkin_item_id = req.body.checkin_item_id;
-            const user_id = req.body.user_id;
-
-
-            if(checkin_item_id === undefined || user_id === undefined){
-                res.status(400).json({
-                    message: "Please specify the id of the checkin item and the id of the user you wish to check in"
+            if(results.length === 0){
+                res.status(401).json({
+                    message:"Invalid Access Token."
                 });
             }else{
-                Checkin.find({_id: checkin_item_id})
-                    .then(results => {
 
-                        if(results.length === 0){
+                Checkin.find({_id: checkin_item_id})
+                    .then(checkin_results =>{
+                        if(checkin_results.length === 0){
                             res.status(404).json({
                                 message: "We couldn't find records of a checkin item with id:"+checkin_item_id
                             });
                         }else{
+                            if(checkin_results[0].self_checkin_enabled){
+                                adminOnly = false;
+                                selfOnly = true;
+                            }else{
+                                adminOnly = true;
+                                selfOnly = false;
+                            }
 
-                            let checkinItem = results[0];
+                            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
+                            if(auth_res.result){
+                                const user_id = req.body.user_id;
 
-                            if(checkinItem.units === 0){
-                                res.status(400).json({
-                                    message: "Checkin limit reached for checkin item with ID: "+checkin_item_id
-                                });
-                            }else {
 
-                                Participants.find({_id: user_id})
-                                    .then(participants => {
+                                if(checkin_item_id === undefined || user_id === undefined){
+                                    res.status(401).json({
+                                        message: "Please specify the id of the checkin item and the id of the user you wish to check in"
+                                    });
+                                }else{
+                                    Checkin.find({_id: checkin_item_id})
+                                        .then(results => {
 
-                                        if(participants.length === 0){
-                                            res.status(404).json({
-                                                message: "We couldn't find records of a user with id:"+user_id
-                                            });
-                                        }else {
+                                            if(results.length === 0){
+                                                res.status(404).json({
+                                                    message: "We couldn't find records of a checkin item with id:"+checkin_item_id
+                                                });
+                                            }else{
 
-                                            checkinItem.units = checkinItem.units - 1;
+                                                let checkinItem = results[0];
 
-                                            checkinItem.save()
-                                                .then(result => {
-
-                                                    const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
-
-                                                    const checkinHistoryItem = new CheckinHistory({
-                                                        _id: new mongoose.Types.ObjectId(),
-                                                        timestamp: currentTime,
-                                                        checkin_item: checkinItem._id,
-                                                        user:participants[0]._id
+                                                if(checkinItem.units === 0){
+                                                    res.status(400).json({
+                                                        message: "Checkin limit reached for checkin item with ID: "+checkin_item_id
                                                     });
+                                                }else {
 
-                                                    checkinHistoryItem.save()
-                                                        .then(result => {
-                                                            console.log(result);
-                                                            res.status(200).json({
-                                                                message: "Successfully Checked In!",
-                                                            });
+                                                    Participants.find({_id: user_id})
+                                                        .then(participants => {
+
+                                                            if(participants.length === 0){
+                                                                res.status(404).json({
+                                                                    message: "We couldn't find records of a user with id:"+user_id
+                                                                });
+                                                            }else {
+
+                                                                checkinItem.units = checkinItem.units - 1;
+
+                                                                checkinItem.save()
+                                                                    .then(result => {
+
+                                                                        const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
+
+                                                                        const checkinHistoryItem = new CheckinHistory({
+                                                                            _id: new mongoose.Types.ObjectId(),
+                                                                            timestamp: currentTime,
+                                                                            checkin_item: checkinItem._id,
+                                                                            user:participants[0]._id
+                                                                        });
+
+                                                                        checkinHistoryItem.save()
+                                                                            .then(result => {
+                                                                                console.log(result);
+                                                                                res.status(200).json({
+                                                                                    message: "Successfully Checked In!",
+                                                                                });
+                                                                            })
+                                                                            .catch(err => {
+                                                                                res.status(500).json({
+                                                                                    message: "Unknown error occurred while checking this user in",
+                                                                                    error: err
+                                                                                });
+                                                                            });
+
+                                                                    })
+                                                                    .catch(err => {
+                                                                        res.status(500).json({
+                                                                            message: "Unknown error occurred while checking this user in",
+                                                                            error: err
+                                                                        });
+                                                                    });
+
+                                                            }
+
                                                         })
-                                                        .catch(err => {
+                                                        .catch(err=>{
                                                             res.status(500).json({
-                                                                message: "Unknown error occurred while checking this user in",
+                                                                message: "We encountered an error while checking user with id:"+user_id+" to check in item with id:"+checkin_item_id,
                                                                 error: err
                                                             });
                                                         });
 
-                                                })
-                                                .catch(err => {
-                                                    res.status(500).json({
-                                                        message: "Unknown error occurred while checking this user in",
-                                                        error: err
-                                                    });
-                                                });
 
-                                        }
+                                                }
+                                            }
 
-                                    })
-                                    .catch(err=>{
-                                        res.status(500).json({
-                                            message: "We encountered an error while checking user with id:"+user_id+" to check in item with id:"+checkin_item_id,
-                                            error: err
+                                        })
+                                        .catch(err=>{
+                                            res.status(500).json({
+                                                message: "We encountered an error while checking user with id:"+user_id+" to check in item with id:"+checkin_item_id,
+                                                error: err
+                                            });
                                         });
-                                    });
-
-
+                                }
+                            }else{
+                                res.status(401).json({
+                                    message: auth_res.message,
+                                });
                             }
                         }
-
                     })
                     .catch(err=>{
                         res.status(500).json({
@@ -566,12 +613,10 @@ router.post('/user', (req, res, next)=>{
                             error: err
                         });
                     });
+
+
+
             }
-        }else{
-            res.status(401).json({
-                message: auth_res.message,
-            });
-        }
     })
     .catch(err=> {
 
