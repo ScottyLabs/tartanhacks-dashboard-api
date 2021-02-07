@@ -12,7 +12,8 @@ const checkinSchema = mongoose.Schema({
     checkin_limit: {type: Number, required: false, default: 1500},
     access_code: {type: Number, required: true},
     active_status: {type: Number, required: true},
-    self_checkin_enabled: {type: Boolean, required: true, default: false}
+    self_checkin_enabled: {type: Boolean, required: true, default: false},
+    points:{type:Number, required: true, default: 0}
 });
 
 module.exports = mongoose.model('Checkin', checkinSchema);

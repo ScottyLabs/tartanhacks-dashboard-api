@@ -59,6 +59,8 @@ const AuthHelper = require('../helpers/auth_helper');
  *                 type: number
  *               self_checkin_enabled:
  *                 type: boolean
+ *               points:
+ *                  type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -94,6 +96,8 @@ router.post('/new', (req, res, next)=>{
             const access = req.body.access_code;
             const status = req.body.active_status;
             const self_checkin_enabled = req.body.self_checkin_enabled;
+            const points = req.body.points;
+
 
 
             console.log(name);
@@ -118,7 +122,8 @@ router.post('/new', (req, res, next)=>{
                             checkin_limit: limit,
                             access_code: access,
                             active_status: status,
-                            self_checkin_enabled: self_checkin_enabled
+                            self_checkin_enabled: self_checkin_enabled,
+                            points: points
                         });
                         console.log(checkin);
                         checkin.save()
@@ -203,6 +208,8 @@ router.post('/new', (req, res, next)=>{
  *                 type: number
  *               self_checkin_enabled:
  *                 type: boolean
+ *               points:
+ *                  type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -304,6 +311,8 @@ router.post('/get', (req, res, next)=>{
  *                 type: number
  *               self_checkin_enabled:
  *                 type: boolean
+ *               points:
+ *                  type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -387,6 +396,10 @@ router.post('/edit', (req, res, next)=>{
 
                             if(req.body.self_checkin_enabled !== undefined){
                                 item.self_checkin_enabled = req.body.self_checkin_enabled;
+                            }
+
+                            if(req.body.points !== undefined){
+                                item.points = req.body.points;
                             }
 
                             item.save()
