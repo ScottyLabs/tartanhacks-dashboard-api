@@ -738,10 +738,71 @@ router.get('/history', (req, res, next)=>{
                                 .populate('checkin_item')
                                 .then(results2=>{
 
+                                    var checkedIn = [];
+                                    var history =[];
 
-                                    res.status(200).json({
-                                        user: participant,
-                                        checkin_history:results2
+                                    for(var i = 0; i <results2.length; i++){
+                                        checkedIn.push(results2[i].checkin_item);
+                                    }
+
+
+                                    Checkin.find().sort('date')
+                                        .then(results3=>{
+
+                                            for(var i = 0; i<results3.length; i++){
+
+                                                let found = false;
+
+                                                for(var j = 0; j<checkedIn.length; j++){
+                                                    if(results3[i]._id == String(checkedIn[j]._id)){
+                                                        found = true;
+                                                    }
+                                                }
+                                                if(found){
+                                                    var checkInItem = {};
+                                                    checkInItem.has_checked_in = true;
+                                                    checkInItem._id = results3[i]._id;
+                                                    checkInItem.name = results3[i].name;
+                                                    checkInItem.desc = results3[i].desc;
+                                                    checkInItem.date = results3[i].date;
+                                                    checkInItem.lat = results3[i].lat;
+                                                    checkInItem.long = results3[i].long;
+                                                    checkInItem.units = results3[i].units;
+                                                    checkInItem.checkin_limit = results3[i].checkin_limit;
+                                                    checkInItem.access_code = results3[i].access_code;
+                                                    checkInItem.active_status = results3[i].active_status;
+                                                    checkInItem.self_checkin_enabled = results3[i].self_checkin_enabled;
+                                                    checkInItem.points = results3[i].points;
+                                                    history.push(checkInItem)
+                                                }else{
+                                                    var checkInItem = {};
+                                                    checkInItem.has_checked_in = false;
+                                                    checkInItem._id = results3[i]._id;
+                                                    checkInItem.name = results3[i].name;
+                                                    checkInItem.desc = results3[i].desc;
+                                                    checkInItem.date = results3[i].date;
+                                                    checkInItem.lat = results3[i].lat;
+                                                    checkInItem.long = results3[i].long;
+                                                    checkInItem.units = results3[i].units;
+                                                    checkInItem.checkin_limit = results3[i].checkin_limit;
+                                                    checkInItem.access_code = results3[i].access_code;
+                                                    checkInItem.active_status = results3[i].active_status;
+                                                    checkInItem.self_checkin_enabled = results3[i].self_checkin_enabled;
+                                                    checkInItem.points = results3[i].points;
+                                                    history.push(checkInItem)                                                }
+                                            }
+
+                                            res.status(200).json({
+                                                user: participant,
+                                                checkin_history:history
+                                            });
+
+                                        }).catch(err=> {
+
+                                            res.status(500).json({
+                                                message: "We encountered an error while getting check-in history for the participant with ID " + user_id,
+                                                error: err
+                                        });
                                     });
 
 
