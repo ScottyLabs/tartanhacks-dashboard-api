@@ -555,34 +555,62 @@ router.post('/user', (req, res, next)=>{
                                                                 });
                                                             }else {
 
-                                                                checkinItem.units = checkinItem.units - 1;
+                                                                let participant = participants[0];
 
-                                                                checkinItem.save()
-                                                                    .then(result => {
+                                                                CheckinHistory.find({user:user_id,checkin_item:checkin_item_id})
+                                                                    .then(history =>{
+                                                                        if(history.length === 0){
+                                                                            checkinItem.units = checkinItem.units - 1;
 
-                                                                        const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
+                                                                            checkinItem.save()
+                                                                                .then(result => {
 
-                                                                        const checkinHistoryItem = new CheckinHistory({
-                                                                            _id: new mongoose.Types.ObjectId(),
-                                                                            timestamp: currentTime,
-                                                                            checkin_item: checkinItem._id,
-                                                                            user:participants[0]._id
-                                                                        });
+                                                                                    const currentTime = (Math.floor(new Date().getTime() / 1000)).toString();
 
-                                                                        checkinHistoryItem.save()
-                                                                            .then(result => {
-                                                                                console.log(result);
-                                                                                res.status(200).json({
-                                                                                    message: "Successfully Checked In!",
+                                                                                    const checkinHistoryItem = new CheckinHistory({
+                                                                                        _id: new mongoose.Types.ObjectId(),
+                                                                                        timestamp: currentTime,
+                                                                                        checkin_item: checkinItem._id,
+                                                                                        user:participants[0]._id
+                                                                                    });
+
+                                                                                    checkinHistoryItem.save()
+                                                                                        .then(result => {
+                                                                                            participant.total_points = participant.total_points + checkinItem.points;
+                                                                                            participant.save()
+                                                                                                .then(result => {
+
+                                                                                                    res.status(200).json({
+                                                                                                        message: "Successfully Checked In!",
+                                                                                                    });
+                                                                                                })
+                                                                                                .catch(err => {
+                                                                                                    res.status(500).json({
+                                                                                                        message: "Unknown error occurred while checking this user in",
+                                                                                                        error: err
+                                                                                                    });
+                                                                                                });
+                                                                                        })
+                                                                                        .catch(err => {
+                                                                                            res.status(500).json({
+                                                                                                message: "Unknown error occurred while checking this user in",
+                                                                                                error: err
+                                                                                            });
+                                                                                        });
+
+                                                                                })
+                                                                                .catch(err => {
+                                                                                    res.status(500).json({
+                                                                                        message: "Unknown error occurred while checking this user in",
+                                                                                        error: err
+                                                                                    });
                                                                                 });
-                                                                            })
-                                                                            .catch(err => {
-                                                                                res.status(500).json({
-                                                                                    message: "Unknown error occurred while checking this user in",
-                                                                                    error: err
-                                                                                });
+
+                                                                        }else{
+                                                                            res.status(400).json({
+                                                                                message: "This user has already been checked in for this check in item."
                                                                             });
-
+                                                                        }
                                                                     })
                                                                     .catch(err => {
                                                                         res.status(500).json({
@@ -590,6 +618,7 @@ router.post('/user', (req, res, next)=>{
                                                                             error: err
                                                                         });
                                                                     });
+
 
                                                             }
 
@@ -748,6 +777,71 @@ router.get('/history', (req, res, next)=>{
         });
     });
 
+
+
+});
+
+/**
+ * @swagger
+ * /checkin/leaderboard:
+ *   get:
+ *     summary: Retrieve the participant leaderboard based on checkin points.
+ *     tags: [Check In Module]
+ *     description: Returns leaderboard based on points awarded to participants for checking in. Access - All Users.
+ *     parameters:
+ *      - in: header
+ *        name: Token
+ *        required: true
+ *        schema:
+ *          type: string
+ *     responses:
+ *       200:
+ *          description: Success.
+ *       404:
+ *          description: Not found.
+ *       500:
+ *          description: Internal Server Error.
+ */
+
+router.get('/leaderboard', (req, res, next)=>{
+
+    const access_token = req.header('Token');
+    const adminOnly = false;
+    const selfOnly = false;
+    const userId = 0;
+    const teamOnly = false;
+    const teamId = 0;
+    let auth_res;
+
+    Auth.find({access_token:access_token})
+        .then(results=>{
+
+            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
+
+            if(auth_res.result){
+                Participants.find().sort('total_points')
+                    .then(results=>{
+                        res.status(200).json(results.reverse());
+
+                    })
+                    .catch(err=> {
+                        res.status(500).json({
+                            message: "Unknown error occurred.",
+                            error: err
+                        });
+                    });
+            }else{
+                res.status(401).json({
+                    message: auth_res.message,
+                });
+            }
+        })
+        .catch(err=> {
+
+            res.status(500).json({
+                message: "We encountered an error while verifying your authentication token",
+            });
+        });
 
 
 });

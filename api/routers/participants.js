@@ -118,7 +118,8 @@ router.post('/new', (req, res, next)=>{
                                 github_profile_url: githubProfileUrl,
                                 resume_url: resumeUrl,
                                 account_creation_time: currentTime,
-                                is_admin: isAdmin
+                                is_admin: isAdmin,
+                                total_points: 0
                             });
 
                             participant.save()
@@ -222,6 +223,8 @@ router.post('/new', (req, res, next)=>{
  *                 type: string
  *               is_admin:
  *                 type: boolean
+ *               total_points:
+ *                 type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -291,7 +294,7 @@ router.post('/get', (req, res, next)=>{
  *   post:
  *     summary: Edit data associated with existing participant
  *     tags: [Participants Module]
- *     description: Include Participant's ID in request body along with the fields with updated data. EMail and isAdmin cannot be edited. Access - Admin Users can edit any account, others can only edit data tied to their account.
+ *     description: Include Participant's ID in request body along with the fields with updated data. EMail, total_points and isAdmin cannot be edited. Access - Admin Users can edit any account, others can only edit data tied to their account.
  *     parameters:
  *      - in: header
  *        name: Token

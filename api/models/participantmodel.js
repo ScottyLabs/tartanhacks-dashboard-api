@@ -17,6 +17,7 @@ const participantsSchema = mongoose.Schema({
     bio: {type:String, required:false},
     account_creation_time: {type: String, required: true},
     is_admin: {type: Boolean, default: false, required: true},
+    total_points:{type: Number, default: 0, required: true}
 
 });
 
