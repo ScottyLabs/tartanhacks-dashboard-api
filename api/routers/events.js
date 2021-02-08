@@ -57,6 +57,8 @@ const AuthHelper = require('../helpers/auth_helper');
  *                 type: string
  *               zoom_password:
  *                 type: string
+ *               duration:
+ *                 type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -90,6 +92,7 @@ router.post('/new', (req, res, next)=>{
                 const access_code = req.body.access_code;
                 const zoom_id = req.body.zoom_id;
                 const zoom_password = req.body.zoom_password;
+                const duration = req.body.duration;
 
                 //TODO: gcal and zoom integration
 
@@ -108,7 +111,8 @@ router.post('/new', (req, res, next)=>{
                     access_code: access_code,
                     zoom_id: zoom_id,
                     zoom_password: zoom_password,
-                    created_at:currentTime
+                    created_at:currentTime,
+                    duration: duration
                 });
 
                 event.save()
@@ -180,6 +184,8 @@ router.post('/new', (req, res, next)=>{
  *                 type: string
  *               created_at:
  *                 type: string
+ *               duration:
+ *                 type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -253,6 +259,8 @@ router.post('/get', (req, res, next)=>{
  *                 type: string
  *               zoom_password:
  *                 type: string
+ *               duration:
+ *                 type: number
  *     responses:
  *       200:
  *          description: Success.
@@ -336,6 +344,10 @@ router.post('/edit', (req, res, next)=>{
 
                                 if(req.body.zoom_password !== undefined){
                                     event.zoom_password = req.body.zoom_password;
+                                }
+
+                                if(req.body.duration !== undefined){
+                                    event.duration = req.body.duration;
                                 }
 
                                 //TODO: Reflect necessary changes on Zoom and GCal

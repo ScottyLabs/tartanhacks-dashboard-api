@@ -749,7 +749,7 @@ router.get('/history', (req, res, next)=>{
                                 .catch(err=> {
 
                                     res.status(500).json({
-                                        message: "BWe encountered an error while getting check-in history for the participant with ID " + user_id,
+                                        message: "We encountered an error while getting check-in history for the participant with ID " + user_id,
                                         error: err
                                     });
                                 });

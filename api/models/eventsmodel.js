@@ -13,7 +13,9 @@ const eventsSchema = mongoose.Schema({
     access_code: {type: Number, required: true},
     zoom_id: {type:String, required: false},
     zoom_password: {type: String, required: false},
-    created_at:{type:String,required:true}
+    created_at:{type:String,required:true},
+    duration:{type:Number,required:true, default:3600}
+
 
 });
 
