@@ -740,9 +740,11 @@ router.get('/history', (req, res, next)=>{
 
                                     var checkedIn = [];
                                     var history =[];
+                                    var timestamps = [];
 
                                     for(var i = 0; i <results2.length; i++){
                                         checkedIn.push(results2[i].checkin_item);
+                                        timestamps.push(results2[i].timestamp);
                                     }
 
 
@@ -753,14 +755,18 @@ router.get('/history', (req, res, next)=>{
 
                                                 let found = false;
 
+                                                let timeStamp = 0;
+
                                                 for(var j = 0; j<checkedIn.length; j++){
                                                     if(results3[i]._id == String(checkedIn[j]._id)){
                                                         found = true;
+                                                        timeStamp = timestamps[j];
                                                     }
                                                 }
                                                 if(found){
                                                     var checkInItem = {};
                                                     checkInItem.has_checked_in = true;
+                                                    checkInItem.check_in_timestamp = timeStamp;
                                                     checkInItem._id = results3[i]._id;
                                                     checkInItem.name = results3[i].name;
                                                     checkInItem.desc = results3[i].desc;
