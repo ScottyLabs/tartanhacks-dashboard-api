@@ -11,7 +11,8 @@ const projectsSchema = mongoose.Schema({
     video_url: { type: String, required: false},
     team_id: {type:String, required: true},
     status: {type:Number, required: true},
-    eligible_prizes:[{type:mongoose.Schema.Types.ObjectId,ref:'Prizes'}]
+    eligible_prizes:[{type:mongoose.Schema.Types.ObjectId,ref:'Prizes'}],
+    will_present_live:{type:Boolean, required: true}
 });
 
 module.exports = mongoose.model('Projects', projectsSchema);

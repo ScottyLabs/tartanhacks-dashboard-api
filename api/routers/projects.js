@@ -51,6 +51,8 @@ const AuthHelper = require('../helpers/auth_helper');
  *                 type: string
  *               video_url:
  *                 type: string
+ *               will_present_live:
+ *                 type: boolean
  *     responses:
  *       200:
  *          description: Success.
@@ -82,6 +84,7 @@ router.post('/new', (req, res, next)=>{
             const github_url = req.body.github_repo_url;
             const slides_url = req.body.slides_url;
             const video_url = req.body.video_url;
+            const will_present_live = req.body.will_present_live;
 
 
             Projects.find({team_id: team_id})
@@ -96,31 +99,40 @@ router.post('/new', (req, res, next)=>{
 
                     }else{
 
-                        const project = new Projects({
-                            _id: new mongoose.Types.ObjectId(),
-                            name: name,
-                            description: desc,
-                            github_repo_url: github_url,
-                            slides_url: slides_url,
-                            video_url: video_url,
-                            team_id: team_id,
-                            status: 1
-                        });
-
-                        project.save()
-                            .then(result =>{
-                                console.log(result);
-                                res.status(200).json({
-                                    message:"Successfully saved new project",
-                                    projectInfo:project
-                                });
-                            })
-                            .catch(err=>{
-                                res.status(500).json({
-                                    message: "We encountered an error while creating this project called "+name,
-                                    error: err
-                                });
+                        if(will_present_live === false && video_url == undefined){
+                            res.status(400).json(
+                                {
+                                    message: "A video submission is mandatory if you will not be presenting live"
+                                }
+                            );
+                        }else{
+                            const project = new Projects({
+                                _id: new mongoose.Types.ObjectId(),
+                                name: name,
+                                description: desc,
+                                github_repo_url: github_url,
+                                slides_url: slides_url,
+                                video_url: video_url,
+                                team_id: team_id,
+                                status: 1,
+                                will_present_live: will_present_live
                             });
+
+                            project.save()
+                                .then(result =>{
+                                    console.log(result);
+                                    res.status(200).json({
+                                        message:"Successfully saved new project",
+                                        projectInfo:project
+                                    });
+                                })
+                                .catch(err=>{
+                                    res.status(500).json({
+                                        message: "We encountered an error while creating this project called "+name,
+                                        error: err
+                                    });
+                                });
+                        }
                     }
                 })
                 .catch(err=>{
@@ -184,6 +196,8 @@ router.post('/new', (req, res, next)=>{
  *                 type: string
  *               status:
  *                 type: number
+ *               will_present_live:
+ *                 type: boolean
  *               eligible_prizes:
  *                 type: array
  *                 items:
@@ -287,6 +301,8 @@ router.post('/get', (req, res, next)=>{
  *                 type: string
  *               video_url:
  *                 type: string
+ *               will_present_live:
+ *                 type: boolean
  *               status:
  *                 type: number
  *     responses:
@@ -358,6 +374,12 @@ router.post('/edit', (req, res, next)=>{
 
                             if(req.body.status !== undefined){
                                 project.status = req.body.status;
+                            }
+
+                            if(req.body.will_present_live !== undefined){
+                                if(!(req.body.will_present_live === false && (req.body.video_url === undefined && project.video_url === undefined))){
+                                    project.will_present_live = req.body.will_present_live;
+                                }
                             }
 
 
