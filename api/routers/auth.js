@@ -79,9 +79,10 @@ router.post('/login', (req, res, next)=>{
                         response.on('data', function(chunk) {
                             chunks.push(chunk);
                         }).on('end', function() {
-                            let data   = chunks.join();
+                            let data   = chunks.join("");
                             p.is_admin = JSON.parse(data).user.admin;
                             p.reg_system_id = JSON.parse(data).user.id;
+                            p.team_id = JSON.parse(data).user.teamCode;
 
                             access_token = JSON.parse(data).token;
 
