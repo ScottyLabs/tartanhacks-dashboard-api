@@ -82,7 +82,10 @@ router.post('/login', (req, res, next)=>{
                             let data   = chunks.join("");
                             p.is_admin = JSON.parse(data).user.admin;
                             p.reg_system_id = JSON.parse(data).user.id;
-                            p.team_id = JSON.parse(data).user.teamCode;
+                            if(JSON.parse(data).user.teamCode != undefined){
+                                p.team_id = JSON.parse(data).user.teamCode;
+
+                            }
 
                             access_token = JSON.parse(data).token;
 
