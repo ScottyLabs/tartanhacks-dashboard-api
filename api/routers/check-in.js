@@ -172,13 +172,7 @@ router.post('/new', (req, res, next)=>{
  *   post:
  *     summary: Retrieve a list of Check-In items
  *     tags: [Check In Module]
- *     description: Searches check in item database and retrieves list of check in items. Specify optional search parameters in request body. Access - All Users.
- *     parameters:
- *      - in: header
- *        name: Token
- *        required: true
- *        schema:
- *          type: string
+ *     description: Searches check in item database and retrieves list of check in items. Specify optional search parameters in request body. Access - Open.
  *     requestBody:
  *       required: false
  *       content:
@@ -221,49 +215,22 @@ router.post('/new', (req, res, next)=>{
 
 router.post('/get', (req, res, next)=>{
 
-    const access_token = req.header('Token');
-    const adminOnly = false;
-    const selfOnly = false;
-    const userId = 0;
-    const teamOnly = false;
-    const teamId = 0;
-    let auth_res;
-
-    Auth.find({access_token:access_token})
+    Checkin.find(req.body).sort('date')
         .then(results=>{
-
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
-
-        if(auth_res.result){
-            Checkin.find(req.body).sort('date')
-                .then(results=>{
-                    if(results.length != 0){
-                        res.status(200).json(results);
-                    }else{
-                        res.status(404).json({
-                            message: "No checkin items matching query."
-                        });
-                    }
-                })
-                .catch(err=> {
-                    res.status(500).json({
-                        message: "Unknown error occurred.",
-                        error: err
-                    });
+            if(results.length != 0){
+                res.status(200).json(results);
+            }else{
+                res.status(404).json({
+                    message: "No checkin items matching query."
                 });
-        }else{
-            res.status(401).json({
-                message: auth_res.message,
+            }
+        })
+        .catch(err=> {
+            res.status(500).json({
+                message: "Unknown error occurred.",
+                error: err
             });
-        }
-    })
-    .catch(err=> {
-
-        res.status(500).json({
-               message: "We encountered an error while verifying your authentication token",
         });
-    });
-
 
 });
 
