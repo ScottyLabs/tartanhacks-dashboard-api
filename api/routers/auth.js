@@ -56,7 +56,7 @@ router.post('/login', (req, res, next)=>{
                     password: password
                 });
                 const options = {
-                    hostname: 'tartanhacks-testing.herokuapp.com',
+                    hostname: 'registration.tartanhacks.com',
                     port: 443,
                     path: '/auth/login',
                     method: 'POST',
@@ -74,11 +74,22 @@ router.post('/login', (req, res, next)=>{
 
                         let access_token = '';
 
-                        response.on('data', function(chunk) {
-                            p.is_admin = JSON.parse(chunk).user.admin;
-                            p.reg_system_id = JSON.parse(chunk).user.id;
+                        let chunks = [];
 
-                            access_token = JSON.parse(chunk).token;
+                        response.on('data', function(chunk) {
+                            chunks.push(chunk);
+                        }).on('end', function() {
+                            let data   = chunks.join();
+                            p.is_admin = JSON.parse(data).user.admin;
+                            p.reg_system_id = JSON.parse(data).user.id;
+
+                            access_token = JSON.parse(data).token;
+
+                            console.log(JSON.parse(data));
+                        });
+
+                        response.on('data', function(chunk) {
+
                         });
                         p.save()
                             .then(result =>{
@@ -193,7 +204,7 @@ router.post('/forgot', (req, res, next)=>{
                     email: email,
                 });
                 const options = {
-                    hostname: 'tartanhacks-testing.herokuapp.com',
+                    hostname: 'registration.tartanhacks.com',
                     port: 443,
                     path: '/auth/reset',
                     method: 'POST',
