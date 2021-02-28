@@ -72,88 +72,98 @@ router.post('/new', (req, res, next)=>{
     const teamId = req.body.team_id;
     let auth_res;
 
-    Auth.find({access_token:access_token})
-        .then(results=>{
+    if(teamId === "NO_TEAM"){
+        res.status(400).json(
+            {
+                message: "You have to join a team before you can submit a project."
+            }
+        );
+    }else{
+        Auth.find({access_token:access_token})
+            .then(results=>{
 
-            auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
+                auth_res = AuthHelper(adminOnly, selfOnly, userId, results, teamOnly, teamId);
 
-        if(auth_res.result){
-            const team_id = req.body.team_id;
-            const name = req.body.name;
-            const desc = req.body.desc;
-            const github_url = req.body.github_repo_url;
-            const slides_url = req.body.slides_url;
-            const video_url = req.body.video_url;
-            const will_present_live = req.body.will_present_live;
+                if(auth_res.result){
+                    const team_id = req.body.team_id;
+                    const name = req.body.name;
+                    const desc = req.body.desc;
+                    const github_url = req.body.github_repo_url;
+                    const slides_url = req.body.slides_url;
+                    const video_url = req.body.video_url;
+                    const will_present_live = req.body.will_present_live;
 
 
-            Projects.find({team_id: team_id})
-                .then(results =>{
-                    if(results.length != 0 && results[0].status != 0){
+                    Projects.find({team_id: team_id})
+                        .then(results =>{
+                            if(results.length != 0 && results[0].status != 0){
 
-                        res.status(400).json(
-                            {
-                                message: "This team already has a project. Use the Edit projects endpoint to edit project details"
-                            }
-                        );
+                                res.status(400).json(
+                                    {
+                                        message: "This team already has a project. Use the Edit projects endpoint to edit project details"
+                                    }
+                                );
 
-                    }else{
+                            }else{
 
-                        if(will_present_live === false && video_url == undefined){
-                            res.status(400).json(
-                                {
-                                    message: "A video submission is mandatory if you will not be presenting live"
+                                if(will_present_live === false && video_url == undefined){
+                                    res.status(400).json(
+                                        {
+                                            message: "A video submission is mandatory if you will not be presenting live"
+                                        }
+                                    );
+                                }else{
+                                    const project = new Projects({
+                                        _id: new mongoose.Types.ObjectId(),
+                                        name: name,
+                                        description: desc,
+                                        github_repo_url: github_url,
+                                        slides_url: slides_url,
+                                        video_url: video_url,
+                                        team_id: team_id,
+                                        status: 1,
+                                        will_present_live: will_present_live
+                                    });
+
+                                    project.save()
+                                        .then(result =>{
+                                            console.log(result);
+                                            res.status(200).json({
+                                                message:"Successfully saved new project",
+                                                projectInfo:project
+                                            });
+                                        })
+                                        .catch(err=>{
+                                            res.status(500).json({
+                                                message: "We encountered an error while creating this project called "+name,
+                                                error: err
+                                            });
+                                        });
                                 }
-                            );
-                        }else{
-                            const project = new Projects({
-                                _id: new mongoose.Types.ObjectId(),
-                                name: name,
-                                description: desc,
-                                github_repo_url: github_url,
-                                slides_url: slides_url,
-                                video_url: video_url,
-                                team_id: team_id,
-                                status: 1,
-                                will_present_live: will_present_live
+                            }
+                        })
+                        .catch(err=>{
+                            res.status(500).json({
+                                message: "We encountered an error while creating this project called "+name,
+                                error: err
                             });
+                        });
 
-                            project.save()
-                                .then(result =>{
-                                    console.log(result);
-                                    res.status(200).json({
-                                        message:"Successfully saved new project",
-                                        projectInfo:project
-                                    });
-                                })
-                                .catch(err=>{
-                                    res.status(500).json({
-                                        message: "We encountered an error while creating this project called "+name,
-                                        error: err
-                                    });
-                                });
-                        }
-                    }
-                })
-                .catch(err=>{
-                    res.status(500).json({
-                        message: "We encountered an error while creating this project called "+name,
-                        error: err
+                }else{
+                    res.status(401).json({
+                        message: auth_res.message,
                     });
+                }
+            })
+            .catch(err=> {
+
+                res.status(500).json({
+                    message: "We encountered an error while verifying your authentication token",
                 });
-
-        }else{
-            res.status(401).json({
-                message: auth_res.message,
             });
-        }
-    })
-    .catch(err=> {
+    }
 
-        res.status(500).json({
-               message: "We encountered an error while verifying your authentication token",
-        });
-    });
+
 
 
 });

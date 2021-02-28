@@ -82,8 +82,11 @@ router.post('/login', (req, res, next)=>{
                             let data   = chunks.join("");
                             p.is_admin = JSON.parse(data).user.admin;
                             p.reg_system_id = JSON.parse(data).user.id;
-                            if(JSON.parse(data).user.teamCode != undefined){
+                            if(JSON.parse(data).user.teamCode === undefined){
                                 p.team_id = JSON.parse(data).user.teamCode;
+
+                            }else{
+                                p.team_id = 'NO_TEAM';
 
                             }
 
