@@ -370,8 +370,8 @@ router.post('/edit', (req, res, next)=>{
                                 project.description = req.body.desc;
                             }
 
-                            if(req.body.github_repo_url !== undefined){
-                                project.github_repo_url = req.body.github_repo_url;
+                            if(req.body.github_url !== undefined){
+                                project.github_repo_url = req.body.github_url;
                             }
 
                             if(req.body.slides_url !== undefined){
