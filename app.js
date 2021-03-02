@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const bodyPasser = require('body-parser');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://thd-db-admin:$f8vde23Qjxn2tD9eSjkPQ1$9!Uur2@thd-dev.po52k.mongodb.net/dev1?retryWrites=true&w=majority',{
+mongoose.connect('mongodb+srv://tech:xKwWntlKbBKl4Euq@cluster0.mkm4x.mongodb.net/tartanhacks-dashboard',{
     useNewUrlParser: true
 }
 );
