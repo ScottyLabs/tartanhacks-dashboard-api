@@ -3,6 +3,7 @@ const app = express();
 const morgan = require('morgan');
 const bodyPasser = require('body-parser');
 const mongoose = require('mongoose');
+var cors = require('cors');
 
 mongoose.connect('mongodb+srv://tech:xKwWntlKbBKl4Euq@cluster0.mkm4x.mongodb.net/tartanhacks-dashboard',{
     useNewUrlParser: true
@@ -31,6 +32,9 @@ app.use((req, res, next) =>{
     }
     next();
 });
+
+app.use(cors());
+
 
 const swaggerJSDoc = require('swagger-jsdoc');
 
