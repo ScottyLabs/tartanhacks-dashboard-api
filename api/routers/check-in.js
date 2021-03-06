@@ -855,6 +855,11 @@ router.get('/leaderboard', (req, res, next)=>{
             if(auth_res.result){
                 Participants.find().sort('total_points')
                     .then(results=>{
+                        for(var i = 0; i<results.length; i++){
+                            results[i].email = "a@b.com";
+                            results[i].is_admin = false;
+                            results[i].github_profile_url = 'gh'
+                        }
                         res.status(200).json(results.reverse());
 
                     })

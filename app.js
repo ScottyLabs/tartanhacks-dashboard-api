@@ -3,7 +3,6 @@ const app = express();
 const morgan = require('morgan');
 const bodyPasser = require('body-parser');
 const mongoose = require('mongoose');
-var cors = require('cors');
 
 mongoose.connect('mongodb+srv://tech:xKwWntlKbBKl4Euq@cluster0.mkm4x.mongodb.net/tartanhacks-dashboard',{
     useNewUrlParser: true
@@ -25,15 +24,13 @@ app.use(bodyPasser.json());
 
 app.use((req, res, next) =>{
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Token');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     if(req.method === 'OPTIONS'){
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
         return res.status(200).json({});
     }
     next();
 });
-
-app.use(cors());
 
 
 const swaggerJSDoc = require('swagger-jsdoc');
