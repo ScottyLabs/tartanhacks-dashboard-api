@@ -72,6 +72,9 @@ router.post('/new', (req, res, next)=>{
     const teamId = req.body.team_id;
     let auth_res;
 
+    const scott_krulcik_id = "60408d97862b9e001514d565";
+    const first_penguin_id = "60409377862b9e001514d572";
+
     if(teamId === "NO_TEAM"){
         res.status(400).json(
             {
@@ -125,9 +128,13 @@ router.post('/new', (req, res, next)=>{
                                         will_present_live: will_present_live
                                     });
 
+                                    project.eligible_prizes.push(scott_krulcik_id);
+                                    project.eligible_prizes.push(first_penguin_id);
+
                                     project.save()
                                         .then(result =>{
                                             console.log(result);
+
                                             res.status(200).json({
                                                 message:"Successfully saved new project",
                                                 projectInfo:project
